@@ -5,88 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
-    <title>故事演示板</title>
+    <meta name="theme-color" content="#F2F2F7">
+    <title>StoryBeat Board - iOS 18</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
+    <!-- iOS 18 Background Gradient -->
+    <div class="ios-background"></div>
+    
+    <!-- Dynamic Island Style Toolbar -->
     <div class="toolbar">
-        <button id="themeBtn" class="toolbar-btn">主题</button>
-        <button id="exportBtn" class="toolbar-btn">导出</button>
-        <button id="importBtn" class="toolbar-btn">导入</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;">
+        <div class="dynamic-island">
+            <button id="themeBtn" class="nav-btn">
+                <span>外观</span>
+            </button>
+            <button id="exportBtn" class="nav-btn">
+                <span>导出</span>
+            </button>
+            <button id="importBtn" class="nav-btn">
+                <span>导入</span>
+            </button>
+        </div>
     </div>
-    <div id="board"></div>
+    <input type="file" id="importFile" accept=".json" style="display: none;">
     
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="polarity-group">
-                <button class="polarity-btn left-polarity" data-position="left">+</button>
-                <div class="top-polarity-wrapper">
-                    <button class="polarity-btn top-polarity" data-position="top">+</button>
+    <!-- Main Board -->
+    <main id="board" role="main" aria-label="故事看板"></main>
+    
+    <!-- Edit Modal - iOS 18 Sheet Style -->
+    <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2 id="editModalTitle" style="font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.4px;">编辑卡片</h2>
+                <div class="polarity-group">
+                    <button class="pol-btn" data-position="left" aria-label="左侧极性">+</button>
+                    <button class="pol-btn" data-position="top" aria-label="顶部极性">+</button>
+                    <button class="pol-btn" data-position="right" aria-label="右侧极性">+</button>
                 </div>
-                <button class="polarity-btn right-polarity" data-position="right">+</button>
             </div>
-            <div class="form-group">
-                <label>大标题（5字以内）</label>
-                <input type="text" id="bigTitleInput" maxlength="5" placeholder="输入大标题">
+            <div class="input-stack">
+                <input type="text" id="bigTitleInput" maxlength="5" placeholder="大标题 (5字内)" aria-label="大标题">
+                <input type="text" id="smallTitleInput" placeholder="小标题" aria-label="小标题">
+                <textarea id="contentInput" placeholder="详细内容描述..." aria-label="内容描述"></textarea>
             </div>
-            <div class="form-group">
-                <label>小标题</label>
-                <input type="text" id="smallTitleInput" placeholder="输入小标题">
-            </div>
-            <div class="form-group">
-                <label>详细内容</label>
-                <textarea id="contentInput" rows="5" placeholder="输入详细内容"></textarea>
-            </div>
-            <div class="modal-actions">
-                <button id="saveBtn" class="action-btn save-btn">保存</button>
-                <button id="cancelBtn" class="action-btn cancel-btn">取消</button>
+            <div class="modal-footer">
+                <button id="cancelBtn" class="ios-btn secondary">取消</button>
+                <button id="saveBtn" class="ios-btn primary">保存</button>
             </div>
         </div>
     </div>
     
-    <div id="confirmModal" class="modal confirm-modal">
-        <div class="confirm-content">
-            <p id="confirmMessage">确定要删除吗？</p>
-            <div class="confirm-actions">
-                <button id="confirmYes" class="action-btn save-btn">确定</button>
-                <button id="confirmNo" class="action-btn cancel-btn">取消</button>
+    <!-- Confirm Modal - iOS 18 Alert Style -->
+    <div id="confirmModal" class="modal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="confirm-box glass">
+            <p id="confirmMessage">确定要执行此操作吗？</p>
+            <div class="confirm-row">
+                <button id="confirmNo" class="ios-btn secondary">取消</button>
+                <button id="confirmYes" class="ios-btn danger">删除</button>
             </div>
         </div>
     </div>
-    
-    <div id="themeModal" class="modal theme-modal">
-        <div class="theme-content">
-            <h3>选择主题</h3>
-            <div class="theme-options">
-                <div class="theme-option" data-theme="wood">
-                    <div class="theme-preview wood-preview"></div>
-                    <span>木头</span>
-                </div>
-                <div class="theme-option" data-theme="blue">
-                    <div class="theme-preview blue-preview"></div>
-                    <span>蓝色</span>
-                </div>
-                <div class="theme-option" data-theme="dark">
-                    <div class="theme-preview dark-preview"></div>
-                    <span>深色</span>
-                </div>
-                <div class="theme-option" data-theme="light">
-                    <div class="theme-preview light-preview"></div>
-                    <span>浅色</span>
-                </div>
-                <div class="theme-option" data-theme="pink">
-                    <div class="theme-preview pink-preview"></div>
-                    <span>粉色</span>
-                </div>
-                <div class="theme-option" data-theme="green">
-                    <div class="theme-preview green-preview"></div>
-                    <span>绿色</span>
-                </div>
+
+    <!-- Theme Modal - iOS 18 Action Sheet Style -->
+    <div id="themeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="themeTitle">
+        <div class="theme-sheet glass">
+            <div class="handle"></div>
+            <h3 id="themeTitle">选择外观</h3>
+            <div class="theme-grid" id="themeOptions">
+                <!-- 由 JS 动态渲染 -->
             </div>
-            <button id="closeThemeBtn" class="action-btn cancel-btn" style="margin-top: 20px; width: 100%;">关闭</button>
+            <button id="closeThemeBtn" class="ios-btn full">关闭</button>
         </div>
     </div>
     

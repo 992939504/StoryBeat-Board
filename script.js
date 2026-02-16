@@ -1,166 +1,157 @@
+// StoryBeat Board - iOS 18 Style
 // 故事演示板脚本
 
 const STORAGE_KEY = 'storyboard_data';
+const THEME_KEY = 'storyboard_theme';
 
 // 数据结构
 let data = [];
 let currentEditingCard = null;
 let pendingDeleteCallback = null;
+let currentTheme = 'default';
+
+// iOS 18 主题配置
+const themes = {
+    default: {
+        name: '默认',
+        bg: 'linear-gradient(180deg, #E8E8ED 0%, #F2F2F7 50%, #E8E8ED 100%)',
+        rowBg: 'rgba(255, 255, 255, 0.72)',
+        rowBorder: 'rgba(255, 255, 255, 0.5)',
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#000000',
+        toolbarBg: 'rgba(0, 0, 0, 0.85)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(0, 122, 255, 0.12)',
+        polarityColor: '#007AFF',
+        addBtnBg: 'rgba(255, 255, 255, 0.72)',
+        addBtnColor: '#007AFF',
+        preview: 'linear-gradient(180deg, #E8E8ED 0%, #E8E8ED 33%, #FFFFFF 33%, #FFFFFF 66%, #007AFF 66%, #007AFF 100%)'
+    },
+    blue: {
+        name: '海洋蓝',
+        bg: 'linear-gradient(180deg, #CCE5FF 0%, #E5F0FF 50%, #CCE5FF 100%)',
+        rowBg: 'rgba(255, 255, 255, 0.85)',
+        rowBorder: 'rgba(0, 122, 255, 0.2)',
+        cardBg: '#FFFFFF',
+        text: '#001F3F',
+        textLight: '#001F3F',
+        toolbarBg: 'rgba(0, 122, 255, 0.9)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(0, 122, 255, 0.15)',
+        polarityColor: '#007AFF',
+        addBtnBg: 'rgba(0, 122, 255, 0.15)',
+        addBtnColor: '#007AFF',
+        preview: 'linear-gradient(180deg, #CCE5FF 0%, #CCE5FF 33%, #007AFF 33%, #007AFF 66%, #FFFFFF 66%, #FFFFFF 100%)'
+    },
+    dark: {
+        name: '深色',
+        bg: 'linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 50%, #1A1A1A 100%)',
+        rowBg: 'rgba(40, 40, 40, 0.85)',
+        rowBorder: 'rgba(255, 255, 255, 0.1)',
+        cardBg: '#2C2C2E',
+        text: '#FFFFFF',
+        textLight: '#FFFFFF',
+        toolbarBg: 'rgba(28, 28, 30, 0.95)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(0, 122, 255, 0.25)',
+        polarityColor: '#5AC8FA',
+        addBtnBg: 'rgba(40, 40, 40, 0.85)',
+        addBtnColor: '#5AC8FA',
+        preview: 'linear-gradient(180deg, #1A1A1A 0%, #1A1A1A 33%, #3D3D3D 33%, #3D3D3D 66%, #5AC8FA 66%, #5AC8FA 100%)'
+    },
+    pink: {
+        name: '樱花粉',
+        bg: 'linear-gradient(180deg, #FFE8EC 0%, #FFF0F3 50%, #FFE8EC 100%)',
+        rowBg: 'rgba(255, 255, 255, 0.85)',
+        rowBorder: 'rgba(255, 45, 85, 0.2)',
+        cardBg: '#FFFFFF',
+        text: '#4A0010',
+        textLight: '#4A0010',
+        toolbarBg: 'rgba(255, 45, 85, 0.9)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(255, 45, 85, 0.15)',
+        polarityColor: '#FF2D55',
+        addBtnBg: 'rgba(255, 45, 85, 0.15)',
+        addBtnColor: '#FF2D55',
+        preview: 'linear-gradient(180deg, #FFE8EC 0%, #FFE8EC 33%, #FF2D55 33%, #FF2D55 66%, #FFFFFF 66%, #FFFFFF 100%)'
+    },
+    green: {
+        name: '森林绿',
+        bg: 'linear-gradient(180deg, #D4EDDA 0%, #E8F5E9 50%, #D4EDDA 100%)',
+        rowBg: 'rgba(255, 255, 255, 0.85)',
+        rowBorder: 'rgba(52, 199, 89, 0.2)',
+        cardBg: '#FFFFFF',
+        text: '#0A3D0E',
+        textLight: '#0A3D0E',
+        toolbarBg: 'rgba(52, 199, 89, 0.9)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(52, 199, 89, 0.15)',
+        polarityColor: '#34C759',
+        addBtnBg: 'rgba(52, 199, 89, 0.15)',
+        addBtnColor: '#34C759',
+        preview: 'linear-gradient(180deg, #D4EDDA 0%, #D4EDDA 33%, #34C759 33%, #34C759 66%, #FFFFFF 66%, #FFFFFF 100%)'
+    },
+    purple: {
+        name: '薰衣草',
+        bg: 'linear-gradient(180deg, #E8E0F0 0%, #F3EEF7 50%, #E8E0F0 100%)',
+        rowBg: 'rgba(255, 255, 255, 0.85)',
+        rowBorder: 'rgba(175, 82, 222, 0.2)',
+        cardBg: '#FFFFFF',
+        text: '#2D0A3D',
+        textLight: '#2D0A3D',
+        toolbarBg: 'rgba(175, 82, 222, 0.9)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: 'rgba(175, 82, 222, 0.15)',
+        polarityColor: '#AF52DE',
+        addBtnBg: 'rgba(175, 82, 222, 0.15)',
+        addBtnColor: '#AF52DE',
+        preview: 'linear-gradient(180deg, #E8E0F0 0%, #E8E0F0 33%, #AF52DE 33%, #AF52DE 66%, #FFFFFF 66%, #FFFFFF 100%)'
+    }
+};
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     loadTheme();
+    renderThemeOptions();
     renderBoard();
     initDragAndDrop();
     initEventListeners();
 });
-
-// 主题配置 - 每层之间有明显对比
-const themes = {
-    wood: {
-        // 背景: 木头色
-        bg: '#DEB887',
-        // 行背景: 蓝色 (与背景形成对比)
-        rowBg: '#0000FF',
-        // 卡片背景: 白色 (与行形成对比)
-        cardBg: '#FFFFFF',
-        text: '#000000',
-        textLight: '#FFFFFF',
-        border: 'rgba(0, 0, 255, 0.3)',
-        borderLight: 'rgba(255, 255, 255, 0.5)',
-        toolbarBg: 'rgba(222, 184, 135, 0.5)',
-        toolbarBorder: 'rgba(139, 90, 43, 0.5)',
-        toolbarColor: '#5D4037',
-        polarityBg: '#E0E0E0'
-    },
-    blue: {
-        // 背景: 蓝色
-        bg: '#0000FF',
-        // 行背景: 浅蓝色
-        rowBg: '#4169E1',
-        // 卡片背景: 白色
-        cardBg: '#FFFFFF',
-        text: '#000000',
-        textLight: '#FFFFFF',
-        border: 'rgba(255, 255, 255, 0.3)',
-        borderLight: 'rgba(255, 255, 255, 0.5)',
-        toolbarBg: 'rgba(0, 0, 255, 0.3)',
-        toolbarBorder: 'rgba(255, 255, 255, 0.4)',
-        toolbarColor: '#FFFFFF',
-        polarityBg: '#E8E8E8'
-    },
-    dark: {
-        // 背景: 深黑色
-        bg: '#1A1A1A',
-        // 行背景: 深灰色
-        rowBg: '#3D3D3D',
-        // 卡片背景: 浅灰色
-        cardBg: '#5A5A5A',
-        text: '#FFFFFF',
-        textLight: '#FFFFFF',
-        border: 'rgba(255, 255, 255, 0.2)',
-        borderLight: 'rgba(255, 255, 255, 0.3)',
-        toolbarBg: 'rgba(255, 255, 255, 0.1)',
-        toolbarBorder: 'rgba(255, 255, 255, 0.2)',
-        toolbarColor: '#FFFFFF',
-        polarityBg: '#4A4A4A'
-    },
-    light: {
-        // 背景: 浅黄色
-        bg: '#FFFF8D',
-        // 行背景: 黄色
-        rowBg: '#FFEB3B',
-        // 卡片背景: 白色
-        cardBg: '#FFFFFF',
-        text: '#000000',
-        textLight: '#000000',
-        border: 'rgba(0, 0, 0, 0.1)',
-        borderLight: 'rgba(0, 0, 0, 0.2)',
-        toolbarBg: 'rgba(255, 235, 59, 0.5)',
-        toolbarBorder: 'rgba(255, 235, 59, 0.6)',
-        toolbarColor: '#000000',
-        polarityBg: '#F0F0F0'
-    },
-    pink: {
-        // 背景: 浅粉色
-        bg: '#FFE4E1',
-        // 行背景: 深粉色
-        rowBg: '#DB7093',
-        // 卡片背景: 白色
-        cardBg: '#FFFFFF',
-        text: '#000000',
-        textLight: '#FFFFFF',
-        border: 'rgba(255, 255, 255, 0.5)',
-        borderLight: 'rgba(255, 255, 255, 0.6)',
-        toolbarBg: 'rgba(219, 112, 147, 0.3)',
-        toolbarBorder: 'rgba(219, 112, 147, 0.5)',
-        toolbarColor: '#8B475D',
-        polarityBg: '#F8F8F8'
-    },
-    green: {
-        // 背景: 浅绿色
-        bg: '#90EE90',
-        // 行背景: 深绿色
-        rowBg: '#228B22',
-        // 卡片背景: 白色
-        cardBg: '#FFFFFF',
-        text: '#000000',
-        textLight: '#FFFFFF',
-        border: 'rgba(255, 255, 255, 0.5)',
-        borderLight: 'rgba(255, 255, 255, 0.6)',
-        toolbarBg: 'rgba(34, 139, 34, 0.3)',
-        toolbarBorder: 'rgba(34, 139, 34, 0.5)',
-        toolbarColor: '#006400',
-        polarityBg: '#F0FFF0'
-    }
-};
 
 // 应用主题
 function applyTheme(themeName) {
     const theme = themes[themeName];
     if (!theme) return;
     
+    currentTheme = themeName;
+    
+    // 设置背景
     document.body.style.background = theme.bg;
-    document.body.style.backgroundColor = theme.bg;
     document.body.style.color = theme.text;
     
-    // 更新行样式
+    // 更新 iOS 背景渐变
+    const iosBg = document.querySelector('.ios-background');
+    if (iosBg) {
+        iosBg.style.background = theme.bg;
+    }
+    
+    // 更新行动态样式
     document.querySelectorAll('.row').forEach(row => {
         row.style.background = theme.rowBg;
-        row.style.borderColor = theme.borderLight;
+        row.style.borderColor = theme.rowBorder;
     });
     
     // 更新卡片样式
     document.querySelectorAll('.card').forEach(card => {
         card.style.background = theme.cardBg;
         card.style.color = theme.text;
-        card.style.borderColor = theme.border;
     });
     
-    // 更新小标题样式
+    // 更新小标题
     document.querySelectorAll('.card-small-title').forEach(title => {
         title.style.color = theme.text;
-    });
-    
-    // 更新工具栏按钮
-    document.querySelectorAll('.toolbar-btn').forEach(btn => {
-        btn.style.background = theme.toolbarBg;
-        btn.style.borderColor = theme.toolbarBorder;
-        btn.style.color = theme.toolbarColor;
-    });
-    
-    // 更新添加按钮
-    document.querySelectorAll('.add-card-btn').forEach(btn => {
-        btn.style.background = theme.rowBg;
-        btn.style.borderColor = theme.borderLight;
-        btn.style.color = theme.textLight;
-    });
-    
-    document.querySelectorAll('.add-row-btn').forEach(btn => {
-        btn.style.background = theme.rowBg;
-        btn.style.borderColor = theme.borderLight;
-        btn.style.color = theme.textLight;
     });
     
     // 更新行标题
@@ -168,23 +159,56 @@ function applyTheme(themeName) {
         title.style.color = theme.textLight;
     });
     
+    // 更新工具栏
+    document.querySelector('.dynamic-island').style.background = theme.toolbarBg;
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.style.color = theme.toolbarColor;
+    });
+    
     // 更新极性符号
     document.querySelectorAll('.polarity-symbol').forEach(symbol => {
-        symbol.style.background = theme.polarityBg || theme.cardBg;
-        symbol.style.color = theme.text;
+        symbol.style.background = theme.polarityBg;
+        symbol.style.color = theme.polarityColor;
     });
+    
+    // 更新添加按钮
+    document.querySelectorAll('.add-card-btn, .add-row-btn').forEach(btn => {
+        btn.style.background = theme.addBtnBg;
+        btn.style.color = theme.addBtnColor;
+    });
+    
+    // 更新主题选项的激活状态
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.toggle('active', option.dataset.theme === themeName);
+    });
+    
+    // 保存主题偏好
+    localStorage.setItem(THEME_KEY, themeName);
 }
 
 // 加载保存的主题
 function loadTheme() {
-    const savedTheme = localStorage.getItem('storyboard_theme') || 'wood';
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'default';
     applyTheme(savedTheme);
+}
+
+// 渲染主题选项
+function renderThemeOptions() {
+    const container = document.getElementById('themeOptions');
+    container.innerHTML = '';
     
-    // 标记当前主题
-    document.querySelectorAll('.theme-option').forEach(option => {
-        if (option.dataset.theme === savedTheme) {
-            option.classList.add('active');
-        }
+    Object.entries(themes).forEach(([key, theme]) => {
+        const option = document.createElement('div');
+        option.className = 'theme-option' + (currentTheme === key ? ' active' : '');
+        option.dataset.theme = key;
+        
+        option.innerHTML = `
+            <div class="theme-preview" style="background: ${theme.preview}"></div>
+            <span>${theme.name}</span>
+        `;
+        
+        option.onclick = () => applyTheme(key);
+        container.appendChild(option);
     });
 }
 
@@ -212,10 +236,10 @@ function getDefaultData() {
             cards: [
                 {
                     id: generateId(),
-                    bigTitle: '示例',
-                    smallTitle: '示例卡片',
-                    content: '这是示例详细内容',
-                    polarity: { left: '+', right: '-', top: '+' }
+                    bigTitle: '开场',
+                    smallTitle: '故事开始',
+                    content: '这是故事的开始，描述场景和主要角色...',
+                    polarity: { left: '+', right: '+', top: '+' }
                 }
             ]
         }
@@ -237,49 +261,48 @@ function renderBoard() {
     const board = document.getElementById('board');
     board.innerHTML = '';
     
-    // 如果没有数据，使用默认数据
     if (data.length === 0) {
         data = getDefaultData();
     }
     
     data.forEach((row, rowIndex) => {
-        // 创建行的包装器
         const wrapper = document.createElement('div');
         wrapper.className = 'row-wrapper';
         
-        // 如果不是第一行，在行之前添加添加行按钮（下一行左边）
+        // 添加行按钮（非第一行显示）
         if (rowIndex > 0) {
             const addRowBefore = document.createElement('div');
             addRowBefore.className = 'add-row-before';
             const addRowBtn = document.createElement('button');
             addRowBtn.className = 'add-row-btn';
-            addRowBtn.textContent = '+';
+            addRowBtn.innerHTML = '<span>+</span><span style="font-size: 13px; margin-left: 4px;">添加行</span>';
             addRowBtn.title = '在此行上方添加新行';
             addRowBtn.onclick = () => addNewRowAt(rowIndex);
             addRowBefore.appendChild(addRowBtn);
             wrapper.appendChild(addRowBefore);
         }
         
-        // 创建行元素
         const rowElement = createRowElement(row);
         wrapper.appendChild(rowElement);
-        
         board.appendChild(wrapper);
     });
     
-    // 最后添加一个添加行按钮
+    // 底部添加行按钮
     const lastWrapper = document.createElement('div');
     lastWrapper.className = 'row-wrapper';
     const addRowContainer = document.createElement('div');
     addRowContainer.className = 'add-row-before';
     const addRowBtn = document.createElement('button');
     addRowBtn.className = 'add-row-btn';
-    addRowBtn.textContent = '+';
+    addRowBtn.innerHTML = '<span>+</span><span style="font-size: 13px; margin-left: 4px;">添加新行</span>';
     addRowBtn.title = '添加新行';
     addRowBtn.onclick = addNewRow;
     addRowContainer.appendChild(addRowBtn);
     lastWrapper.appendChild(addRowContainer);
     board.appendChild(lastWrapper);
+    
+    // 应用当前主题
+    applyTheme(currentTheme);
 }
 
 // 创建行元素
@@ -315,7 +338,7 @@ function createRowElement(row) {
     deleteRowBtn.textContent = '删除';
     deleteRowBtn.onclick = (e) => {
         e.stopPropagation();
-        showConfirm('确定要删除这一行吗？', () => {
+        showConfirm('确定要删除这一行吗？所有卡片将被删除。', () => {
             deleteRow(row.id);
         });
     };
@@ -427,7 +450,7 @@ function togglePolarity(card, position) {
     initDragAndDrop();
 }
 
-// 添加新行（在末尾）
+// 添加新行
 function addNewRow() {
     const newRow = {
         id: generateId(),
@@ -480,7 +503,6 @@ function addNewCard(rowId) {
         saveData();
         renderBoard();
         initDragAndDrop();
-        // 直接进入编辑模式
         setTimeout(() => openEditModal(newCard, rowId), 100);
     }
 }
@@ -504,22 +526,17 @@ function openEditModal(card, rowId) {
     document.getElementById('smallTitleInput').value = card.smallTitle || '';
     document.getElementById('contentInput').value = card.content || '';
     
-    // 设置极性按钮
-    updatePolarityButtons(card);
+    // 更新极性按钮
+    document.querySelectorAll('.pol-btn').forEach(btn => {
+        const position = btn.dataset.position;
+        btn.textContent = card.polarity[position];
+    });
     
     document.getElementById('editModal').classList.add('show');
     
-    // 聚焦大标题
     setTimeout(() => {
         document.getElementById('bigTitleInput').focus();
     }, 100);
-}
-
-// 更新极性按钮显示
-function updatePolarityButtons(card) {
-    document.querySelector('.left-polarity').textContent = card.polarity.left;
-    document.querySelector('.right-polarity').textContent = card.polarity.right;
-    document.querySelector('.top-polarity').textContent = card.polarity.top;
 }
 
 // 关闭编辑弹窗
@@ -574,15 +591,15 @@ function initEventListeners() {
     };
     document.getElementById('confirmNo').onclick = closeConfirmModal;
     
-    // 极性按钮点击
-    document.querySelectorAll('.polarity-btn').forEach(btn => {
+    // 极性按钮
+    document.querySelectorAll('.pol-btn').forEach(btn => {
         btn.onclick = () => {
             if (!currentEditingCard) return;
             const position = btn.dataset.position;
             const values = ['+', '-'];
             const currentIndex = values.indexOf(currentEditingCard.card.polarity[position]);
             currentEditingCard.card.polarity[position] = values[(currentIndex + 1) % values.length];
-            updatePolarityButtons(currentEditingCard.card);
+            btn.textContent = currentEditingCard.card.polarity[position];
         };
     });
     
@@ -594,26 +611,9 @@ function initEventListeners() {
         document.getElementById('themeModal').classList.add('show');
     };
     
-    // 主题选项点击
-    document.querySelectorAll('.theme-option').forEach(option => {
-        option.onclick = () => {
-            const theme = option.dataset.theme;
-            applyTheme(theme);
-            localStorage.setItem('storyboard_theme', theme);
-            document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-        };
-    });
-    
     // 关闭主题弹窗
     document.getElementById('closeThemeBtn').onclick = () => {
         document.getElementById('themeModal').classList.remove('show');
-    };
-    
-    document.getElementById('themeModal').onclick = (e) => {
-        if (e.target.id === 'themeModal') {
-            document.getElementById('themeModal').classList.remove('show');
-        }
     };
     
     // 导入按钮
@@ -621,7 +621,7 @@ function initEventListeners() {
         document.getElementById('importFile').click();
     };
     
-    // 导入文件选择
+    // 导入文件
     document.getElementById('importFile').onchange = importData;
     
     // 点击弹窗外部关闭
@@ -637,11 +637,18 @@ function initEventListeners() {
         }
     };
     
+    document.getElementById('themeModal').onclick = (e) => {
+        if (e.target.id === 'themeModal') {
+            document.getElementById('themeModal').classList.remove('show');
+        }
+    };
+    
     // ESC 关闭弹窗
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeEditModal();
             closeConfirmModal();
+            document.getElementById('themeModal').classList.remove('show');
         }
     });
 }
@@ -653,7 +660,7 @@ function exportData() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'storyboard_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = 'storybeat_' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -674,33 +681,82 @@ function importData(e) {
                 saveData();
                 renderBoard();
                 initDragAndDrop();
-                alert('导入成功！');
+                showIOSAlert('导入成功');
             } else {
-                alert('无效的数据格式');
+                showIOSAlert('无效的数据格式');
             }
         } catch (err) {
-            alert('导入失败：' + err.message);
+            showIOSAlert('导入失败：' + err.message);
         }
     };
     reader.readAsText(file);
     e.target.value = '';
 }
 
+// iOS 风格提示
+function showIOSAlert(message) {
+    const existingAlert = document.querySelector('.ios-toast');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'ios-toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        color: white;
+        padding: 14px 28px;
+        border-radius: 9999px;
+        font-size: 15px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: toastSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    
+    // 添加动画样式
+    if (!document.querySelector('#toast-style')) {
+        const style = document.createElement('style');
+        style.id = 'toast-style';
+        style.textContent = `
+            @keyframes toastSlideUp {
+                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+    }, 2000);
+}
+
 // 初始化拖拽
 function initDragAndDrop() {
-    // 卡片拖拽
     document.querySelectorAll('.cards-container').forEach(container => {
-        // 销毁旧的 Sortable 实例
         if (container.sortableInstance) {
             container.sortableInstance.destroy();
         }
         
         const sortable = new Sortable(container, {
             group: 'cards',
-            animation: 150,
+            animation: 200,
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             filter: '.add-card-btn',
+            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
             onEnd: handleCardDragEnd
         });
         
@@ -724,15 +780,12 @@ function handleCardDragEnd(evt) {
     
     if (!fromRow || !toRow) return;
     
-    // 找到移动的卡片的ID
     const movedCardId = item.dataset.cardId;
     
     if (fromRowId === toRowId) {
-        // 同一行内拖拽
         const cardIndex = fromRow.cards.findIndex(c => c.id === movedCardId);
         if (cardIndex > -1) {
             const [movedCard] = fromRow.cards.splice(cardIndex, 1);
-            // 重新计算新索引（排除添加按钮）
             let insertIndex = newIndex;
             if (newIndex > cardIndex) {
                 insertIndex = newIndex - 1;
@@ -740,12 +793,10 @@ function handleCardDragEnd(evt) {
             fromRow.cards.splice(insertIndex, 0, movedCard);
         }
     } else {
-        // 跨行拖拽
         const cardIndex = fromRow.cards.findIndex(c => c.id === movedCardId);
         if (cardIndex > -1) {
             const [movedCard] = fromRow.cards.splice(cardIndex, 1);
             let insertIndex = newIndex;
-            // 调整索引（排除添加按钮）
             if (newIndex > 0) {
                 insertIndex = newIndex - 1;
             }
