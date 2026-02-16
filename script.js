@@ -10,10 +10,183 @@ let pendingDeleteCallback = null;
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
+    loadTheme();
     renderBoard();
     initDragAndDrop();
     initEventListeners();
 });
+
+// 主题配置 - 每层之间有明显对比
+const themes = {
+    wood: {
+        // 背景: 木头色
+        bg: '#DEB887',
+        // 行背景: 蓝色 (与背景形成对比)
+        rowBg: '#0000FF',
+        // 卡片背景: 白色 (与行形成对比)
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#FFFFFF',
+        border: 'rgba(0, 0, 255, 0.3)',
+        borderLight: 'rgba(255, 255, 255, 0.5)',
+        toolbarBg: 'rgba(222, 184, 135, 0.5)',
+        toolbarBorder: 'rgba(139, 90, 43, 0.5)',
+        toolbarColor: '#5D4037',
+        polarityBg: '#E0E0E0'
+    },
+    blue: {
+        // 背景: 蓝色
+        bg: '#0000FF',
+        // 行背景: 浅蓝色
+        rowBg: '#4169E1',
+        // 卡片背景: 白色
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#FFFFFF',
+        border: 'rgba(255, 255, 255, 0.3)',
+        borderLight: 'rgba(255, 255, 255, 0.5)',
+        toolbarBg: 'rgba(0, 0, 255, 0.3)',
+        toolbarBorder: 'rgba(255, 255, 255, 0.4)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: '#E8E8E8'
+    },
+    dark: {
+        // 背景: 深黑色
+        bg: '#1A1A1A',
+        // 行背景: 深灰色
+        rowBg: '#3D3D3D',
+        // 卡片背景: 浅灰色
+        cardBg: '#5A5A5A',
+        text: '#FFFFFF',
+        textLight: '#FFFFFF',
+        border: 'rgba(255, 255, 255, 0.2)',
+        borderLight: 'rgba(255, 255, 255, 0.3)',
+        toolbarBg: 'rgba(255, 255, 255, 0.1)',
+        toolbarBorder: 'rgba(255, 255, 255, 0.2)',
+        toolbarColor: '#FFFFFF',
+        polarityBg: '#4A4A4A'
+    },
+    light: {
+        // 背景: 浅黄色
+        bg: '#FFFF8D',
+        // 行背景: 黄色
+        rowBg: '#FFEB3B',
+        // 卡片背景: 白色
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#000000',
+        border: 'rgba(0, 0, 0, 0.1)',
+        borderLight: 'rgba(0, 0, 0, 0.2)',
+        toolbarBg: 'rgba(255, 235, 59, 0.5)',
+        toolbarBorder: 'rgba(255, 235, 59, 0.6)',
+        toolbarColor: '#000000',
+        polarityBg: '#F0F0F0'
+    },
+    pink: {
+        // 背景: 浅粉色
+        bg: '#FFE4E1',
+        // 行背景: 深粉色
+        rowBg: '#DB7093',
+        // 卡片背景: 白色
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#FFFFFF',
+        border: 'rgba(255, 255, 255, 0.5)',
+        borderLight: 'rgba(255, 255, 255, 0.6)',
+        toolbarBg: 'rgba(219, 112, 147, 0.3)',
+        toolbarBorder: 'rgba(219, 112, 147, 0.5)',
+        toolbarColor: '#8B475D',
+        polarityBg: '#F8F8F8'
+    },
+    green: {
+        // 背景: 浅绿色
+        bg: '#90EE90',
+        // 行背景: 深绿色
+        rowBg: '#228B22',
+        // 卡片背景: 白色
+        cardBg: '#FFFFFF',
+        text: '#000000',
+        textLight: '#FFFFFF',
+        border: 'rgba(255, 255, 255, 0.5)',
+        borderLight: 'rgba(255, 255, 255, 0.6)',
+        toolbarBg: 'rgba(34, 139, 34, 0.3)',
+        toolbarBorder: 'rgba(34, 139, 34, 0.5)',
+        toolbarColor: '#006400',
+        polarityBg: '#F0FFF0'
+    }
+};
+
+// 应用主题
+function applyTheme(themeName) {
+    const theme = themes[themeName];
+    if (!theme) return;
+    
+    document.body.style.background = theme.bg;
+    document.body.style.backgroundColor = theme.bg;
+    document.body.style.color = theme.text;
+    
+    // 更新行样式
+    document.querySelectorAll('.row').forEach(row => {
+        row.style.background = theme.rowBg;
+        row.style.borderColor = theme.borderLight;
+    });
+    
+    // 更新卡片样式
+    document.querySelectorAll('.card').forEach(card => {
+        card.style.background = theme.cardBg;
+        card.style.color = theme.text;
+        card.style.borderColor = theme.border;
+    });
+    
+    // 更新小标题样式
+    document.querySelectorAll('.card-small-title').forEach(title => {
+        title.style.color = theme.text;
+    });
+    
+    // 更新工具栏按钮
+    document.querySelectorAll('.toolbar-btn').forEach(btn => {
+        btn.style.background = theme.toolbarBg;
+        btn.style.borderColor = theme.toolbarBorder;
+        btn.style.color = theme.toolbarColor;
+    });
+    
+    // 更新添加按钮
+    document.querySelectorAll('.add-card-btn').forEach(btn => {
+        btn.style.background = theme.rowBg;
+        btn.style.borderColor = theme.borderLight;
+        btn.style.color = theme.textLight;
+    });
+    
+    document.querySelectorAll('.add-row-btn').forEach(btn => {
+        btn.style.background = theme.rowBg;
+        btn.style.borderColor = theme.borderLight;
+        btn.style.color = theme.textLight;
+    });
+    
+    // 更新行标题
+    document.querySelectorAll('.row-title').forEach(title => {
+        title.style.color = theme.textLight;
+    });
+    
+    // 更新极性符号
+    document.querySelectorAll('.polarity-symbol').forEach(symbol => {
+        symbol.style.background = theme.polarityBg || theme.cardBg;
+        symbol.style.color = theme.text;
+    });
+}
+
+// 加载保存的主题
+function loadTheme() {
+    const savedTheme = localStorage.getItem('storyboard_theme') || 'wood';
+    applyTheme(savedTheme);
+    
+    // 标记当前主题
+    document.querySelectorAll('.theme-option').forEach(option => {
+        if (option.dataset.theme === savedTheme) {
+            option.classList.add('active');
+        }
+    });
+}
 
 // 加载数据
 function loadData() {
@@ -415,6 +588,33 @@ function initEventListeners() {
     
     // 导出按钮
     document.getElementById('exportBtn').onclick = exportData;
+    
+    // 主题按钮
+    document.getElementById('themeBtn').onclick = () => {
+        document.getElementById('themeModal').classList.add('show');
+    };
+    
+    // 主题选项点击
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.onclick = () => {
+            const theme = option.dataset.theme;
+            applyTheme(theme);
+            localStorage.setItem('storyboard_theme', theme);
+            document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+        };
+    });
+    
+    // 关闭主题弹窗
+    document.getElementById('closeThemeBtn').onclick = () => {
+        document.getElementById('themeModal').classList.remove('show');
+    };
+    
+    document.getElementById('themeModal').onclick = (e) => {
+        if (e.target.id === 'themeModal') {
+            document.getElementById('themeModal').classList.remove('show');
+        }
+    };
     
     // 导入按钮
     document.getElementById('importBtn').onclick = () => {

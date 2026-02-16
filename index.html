@@ -12,6 +12,7 @@
 </head>
 <body>
     <div class="toolbar">
+        <button id="themeBtn" class="toolbar-btn">主题</button>
         <button id="exportBtn" class="toolbar-btn">导出</button>
         <button id="importBtn" class="toolbar-btn">导入</button>
         <input type="file" id="importFile" accept=".json" style="display: none;">
@@ -53,6 +54,39 @@
                 <button id="confirmYes" class="action-btn save-btn">确定</button>
                 <button id="confirmNo" class="action-btn cancel-btn">取消</button>
             </div>
+        </div>
+    </div>
+    
+    <div id="themeModal" class="modal theme-modal">
+        <div class="theme-content">
+            <h3>选择主题</h3>
+            <div class="theme-options">
+                <div class="theme-option" data-theme="wood">
+                    <div class="theme-preview wood-preview"></div>
+                    <span>木头</span>
+                </div>
+                <div class="theme-option" data-theme="blue">
+                    <div class="theme-preview blue-preview"></div>
+                    <span>蓝色</span>
+                </div>
+                <div class="theme-option" data-theme="dark">
+                    <div class="theme-preview dark-preview"></div>
+                    <span>深色</span>
+                </div>
+                <div class="theme-option" data-theme="light">
+                    <div class="theme-preview light-preview"></div>
+                    <span>浅色</span>
+                </div>
+                <div class="theme-option" data-theme="pink">
+                    <div class="theme-preview pink-preview"></div>
+                    <span>粉色</span>
+                </div>
+                <div class="theme-option" data-theme="green">
+                    <div class="theme-preview green-preview"></div>
+                    <span>绿色</span>
+                </div>
+            </div>
+            <button id="closeThemeBtn" class="action-btn cancel-btn" style="margin-top: 20px; width: 100%;">关闭</button>
         </div>
     </div>
     
