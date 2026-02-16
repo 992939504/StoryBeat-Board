@@ -4,8 +4,8 @@
 :root {
     --ios-blue: #007AFF;
     --ios-bg: rgba(255, 255, 255, 0.15);
-    --ios-card: rgba(255, 255, 255, 0.1);
-    --ios-card-solid: #FFFFFF;
+    --ios-card: rgba(30, 30, 30, 0.85);
+    --ios-card-solid: #1E1E1E;
     --ios-text: #FFFFFF;
     --ios-text-dark: #000000;
     --ios-text-secondary: rgba(255, 255, 255, 0.7);
@@ -119,8 +119,8 @@ body {
 
 /* Row Styles */
 .row {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: var(--ios-card-solid);
+    border: 1px solid var(--ios-border);
     border-radius: var(--ios-radius-lg);
     padding: 16px;
     position: relative;
@@ -231,8 +231,8 @@ body {
 
 /* Card Styles */
 .card {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: #2C2C2E;
+    border: 1px solid var(--ios-border);
     border-radius: var(--ios-radius-md);
     padding: 12px;
     min-width: 100px;
@@ -245,7 +245,7 @@ body {
 }
 
 .card:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: #3A3A3C;
     transform: translateY(-2px);
 }
 
@@ -291,7 +291,7 @@ body {
     cursor: pointer;
     padding: 3px 5px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.15);
+    background: #3A3A3C;
     transition: all 0.15s ease;
     font-size: 11px;
     width: 20px;
