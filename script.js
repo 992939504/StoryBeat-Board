@@ -114,6 +114,7 @@ const themes = {
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     loadTheme();
+    loadPageTitle();
     renderThemeOptions();
     renderBoard();
     initDragAndDrop();
@@ -165,11 +166,7 @@ function applyTheme(themeName) {
         btn.style.color = theme.toolbarColor;
     });
     
-    // 更新极性符号
-    document.querySelectorAll('.polarity-symbol').forEach(symbol => {
-        symbol.style.background = theme.polarityBg;
-        symbol.style.color = theme.polarityColor;
-    });
+    // 极性符号颜色由极性值决定，不应用主题颜色
     
     // 更新添加按钮
     document.querySelectorAll('.add-card-btn, .add-row-btn').forEach(btn => {
@@ -188,8 +185,24 @@ function applyTheme(themeName) {
 
 // 加载保存的主题
 function loadTheme() {
-    const savedTheme = localStorage.getItem(THEME_KEY) || 'default';
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'blue';
     applyTheme(savedTheme);
+}
+
+// 加载页面标题
+function loadPageTitle() {
+    const savedTitle = localStorage.getItem('storyboard_title') || '我的故事';
+    const titleElement = document.getElementById('pageTitle');
+    if (titleElement) {
+        titleElement.textContent = savedTitle;
+        document.title = savedTitle + ' - StoryBeat Board';
+    }
+}
+
+// 保存页面标题
+function savePageTitle(title) {
+    localStorage.setItem('storyboard_title', title);
+    document.title = title + ' - StoryBeat Board';
 }
 
 // 渲染主题选项
@@ -359,10 +372,13 @@ function createRowElement(row) {
     addCardBtn.onclick = () => addNewCard(row.id);
     cardsContainer.appendChild(addCardBtn);
     
-    // 渲染卡片
+    // 渲染卡片，传递上一张卡片的右侧极性
+    let prevCardPolarity = null;
     row.cards.forEach((card) => {
-        const cardElement = createCardElement(card, row.id);
+        const cardElement = createCardElement(card, row.id, prevCardPolarity);
         cardsContainer.appendChild(cardElement);
+        // 保存当前卡片的右侧极性，供下一张卡片使用
+        prevCardPolarity = card.polarity.right;
     });
     
     rowDiv.appendChild(cardsContainer);
@@ -371,17 +387,45 @@ function createRowElement(row) {
 }
 
 // 创建卡片元素
-function createCardElement(card, rowId) {
+function createCardElement(card, rowId, prevCardPolarity) {
+    // 顶部极性自动同步右侧极性
+    card.polarity.top = card.polarity.right;
+    
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card';
     cardDiv.dataset.cardId = card.id;
     cardDiv.dataset.rowId = rowId;
     
+    // 如果有上一张卡片，检查连贯性并显示连接线
+    if (prevCardPolarity) {
+        const connector = document.createElement('div');
+        connector.className = 'card-connector-wrapper';
+        
+        // 检查连贯性：上一张结尾 vs 这张开头
+        const isConnected = prevCardPolarity === card.polarity.left;
+        
+        if (isConnected) {
+            // 连贯 - 显示连接线
+            const line = document.createElement('div');
+            line.className = 'card-connector ' + (prevCardPolarity === '+' ? 'positive' : 'negative');
+            connector.appendChild(line);
+        } else {
+            // 不连贯 - 显示叹号警告
+            const warning = document.createElement('div');
+            warning.className = 'card-connector-warning';
+            warning.innerHTML = '⚠️';
+            warning.title = '故事不连贯：上一张结尾与此张开头极性不同';
+            connector.appendChild(warning);
+        }
+        
+        cardDiv.appendChild(connector);
+    }
+    
     // 左侧极性
     const leftPolarity = document.createElement('div');
     leftPolarity.className = 'card-polarity left';
     const leftSymbol = document.createElement('span');
-    leftSymbol.className = 'polarity-symbol';
+    leftSymbol.className = 'polarity-symbol ' + (card.polarity.left === '+' ? 'positive' : 'negative');
     leftSymbol.textContent = card.polarity.left;
     leftSymbol.onclick = (e) => {
         e.stopPropagation();
@@ -390,30 +434,27 @@ function createCardElement(card, rowId) {
     leftPolarity.appendChild(leftSymbol);
     cardDiv.appendChild(leftPolarity);
     
-    // 顶部极性
+    // 顶部极性 - 根据右侧极性自动确定，显示卡片整体情绪
     const topPolarity = document.createElement('div');
     topPolarity.className = 'card-polarity top';
     const topSymbol = document.createElement('span');
-    topSymbol.className = 'polarity-symbol';
-    topSymbol.textContent = card.polarity.top;
-    topSymbol.onclick = (e) => {
-        e.stopPropagation();
-        togglePolarity(card, 'top');
-    };
+    topSymbol.className = 'polarity-symbol ' + (card.polarity.right === '+' ? 'positive' : 'negative');
+    topSymbol.textContent = card.polarity.right;
+    // 顶部极性不可点击，只显示
     topPolarity.appendChild(topSymbol);
     cardDiv.appendChild(topPolarity);
     
-    // 小标题
+    // 小标题 - 优先显示大标题，其次小标题
     const smallTitle = document.createElement('div');
     smallTitle.className = 'card-small-title';
-    smallTitle.textContent = card.smallTitle || '无标题';
+    smallTitle.textContent = card.bigTitle || card.smallTitle || '无标题';
     cardDiv.appendChild(smallTitle);
     
     // 右侧极性
     const rightPolarity = document.createElement('div');
     rightPolarity.className = 'card-polarity right';
     const rightSymbol = document.createElement('span');
-    rightSymbol.className = 'polarity-symbol';
+    rightSymbol.className = 'polarity-symbol ' + (card.polarity.right === '+' ? 'positive' : 'negative');
     rightSymbol.textContent = card.polarity.right;
     rightSymbol.onclick = (e) => {
         e.stopPropagation();
@@ -445,6 +486,12 @@ function togglePolarity(card, position) {
     const values = ['+', '-'];
     const currentIndex = values.indexOf(card.polarity[position]);
     card.polarity[position] = values[(currentIndex + 1) % values.length];
+    
+    // 如果改变的是右侧极性，自动同步顶部极性
+    if (position === 'right') {
+        card.polarity.top = card.polarity.right;
+    }
+    
     saveData();
     renderBoard();
     initDragAndDrop();
@@ -526,11 +573,8 @@ function openEditModal(card, rowId) {
     document.getElementById('smallTitleInput').value = card.smallTitle || '';
     document.getElementById('contentInput').value = card.content || '';
     
-    // 更新极性按钮
-    document.querySelectorAll('.pol-btn').forEach(btn => {
-        const position = btn.dataset.position;
-        btn.textContent = card.polarity[position];
-    });
+    // 更新极性按钮样式
+    updatePolarityButtons(card);
     
     document.getElementById('editModal').classList.add('show');
     
@@ -539,7 +583,20 @@ function openEditModal(card, rowId) {
     }, 100);
 }
 
-// 关闭编辑弹窗
+// 更新极性按钮显示
+function updatePolarityButtons(card) {
+    document.querySelectorAll('.pol-btn').forEach(btn => {
+        const position = btn.dataset.position;
+        // 只更新左右两个按钮
+        if (position === 'left' || position === 'right') {
+            btn.textContent = card.polarity[position];
+            btn.classList.remove('positive', 'negative');
+            btn.classList.add(card.polarity[position] === '+' ? 'positive' : 'negative');
+        }
+    });
+}
+
+// 关闭编辑弹窗（不保存）
 function closeEditModal() {
     document.getElementById('editModal').classList.remove('show');
     currentEditingCard = null;
@@ -549,16 +606,22 @@ function closeEditModal() {
 function saveCard() {
     if (!currentEditingCard) return;
     
-    const { card, rowId } = currentEditingCard;
+    const { card } = currentEditingCard;
     
     card.bigTitle = document.getElementById('bigTitleInput').value;
     card.smallTitle = document.getElementById('smallTitleInput').value;
     card.content = document.getElementById('contentInput').value;
     
+    // 同步顶部极性 = 右侧极性
+    card.polarity.top = card.polarity.right;
+    
     saveData();
-    closeEditModal();
     renderBoard();
     initDragAndDrop();
+    
+    // 关闭弹窗
+    document.getElementById('editModal').classList.remove('show');
+    currentEditingCard = null;
 }
 
 // 显示确认弹窗
@@ -576,6 +639,22 @@ function closeConfirmModal() {
 
 // 初始化事件监听
 function initEventListeners() {
+    // 页面标题编辑
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle) {
+        pageTitle.addEventListener('blur', (e) => {
+            const title = e.target.textContent.trim() || '我的故事';
+            e.target.textContent = title;
+            savePageTitle(title);
+        });
+        pageTitle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                pageTitle.blur();
+            }
+        });
+    }
+    
     // 保存按钮
     document.getElementById('saveBtn').onclick = saveCard;
     
@@ -591,15 +670,22 @@ function initEventListeners() {
     };
     document.getElementById('confirmNo').onclick = closeConfirmModal;
     
-    // 极性按钮
+    // 极性按钮（只处理左右两个）
     document.querySelectorAll('.pol-btn').forEach(btn => {
         btn.onclick = () => {
             if (!currentEditingCard) return;
             const position = btn.dataset.position;
+            // 只处理左右极性
+            if (position !== 'left' && position !== 'right') return;
+            
             const values = ['+', '-'];
             const currentIndex = values.indexOf(currentEditingCard.card.polarity[position]);
             currentEditingCard.card.polarity[position] = values[(currentIndex + 1) % values.length];
+            
+            // 更新按钮显示和样式
             btn.textContent = currentEditingCard.card.polarity[position];
+            btn.classList.remove('positive', 'negative');
+            btn.classList.add(currentEditingCard.card.polarity[position] === '+' ? 'positive' : 'negative');
         };
     });
     

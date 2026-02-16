@@ -119,20 +119,25 @@ body {
 .toolbar {
     position: fixed;
     top: calc(12px + var(--safe-area-top));
-    left: 50%;
-    transform: translateX(-50%);
+    left: 16px;
+    right: 16px;
     z-index: 1000;
+    display: flex;
+    justify-content: center;
 }
 
 .dynamic-island {
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: space-between;
+    gap: 16px;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(var(--ios-blur-heavy));
     -webkit-backdrop-filter: blur(var(--ios-blur-heavy));
     border-radius: var(--ios-radius-full);
-    padding: 6px 8px;
+    padding: 8px 12px;
+    min-width: 320px;
+    max-width: 500px;
     box-shadow: 
         0 4px 16px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -140,14 +145,51 @@ body {
 }
 
 .dynamic-island:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
+}
+
+/* 页面标题 */
+.page-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+    cursor: text;
+    padding: 6px 12px;
+    border-radius: var(--ios-radius-sm);
+    border: 2px solid transparent;
+    background: transparent;
+    outline: none;
+    min-width: 80px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    transition: all var(--transition-fast);
+}
+
+.page-title:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.page-title:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* 导航按钮组 */
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .nav-btn {
     background: transparent;
     border: none;
     color: #FFFFFF;
-    padding: 10px 16px;
+    padding: 8px 14px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
@@ -222,6 +264,7 @@ body {
     min-width: 56px;
     font-size: 24px;
     border-radius: var(--ios-radius-md);
+    margin-right: 8px;
 }
 
 .add-row-btn:hover,
@@ -326,11 +369,11 @@ body {
 .cards-container {
     display: flex;
     flex-wrap: nowrap;
-    gap: 12px;
+    gap: 0;
     align-items: flex-start;
     min-height: 88px;
     overflow-x: auto;
-    padding: 8px 4px;
+    padding: 12px 8px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
@@ -355,6 +398,12 @@ body {
     transition: all var(--transition-normal);
     box-shadow: var(--shadow-card);
     border: none;
+    margin-left: 24px; /* 卡片间距 */
+}
+
+/* 第一张卡片不需要左边距 */
+.card:first-of-type {
+    margin-left: 0;
 }
 
 .card:hover {
@@ -366,6 +415,48 @@ body {
 
 .card:active {
     transform: scale(0.97);
+}
+
+/* Card Connector - 卡片连接线 */
+.card-connector-wrapper {
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+}
+
+.card-connector {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+}
+
+.card-connector.positive {
+    background: linear-gradient(90deg, #34C759 0%, #30D158 100%);
+    box-shadow: 0 2px 6px rgba(52, 199, 89, 0.4);
+}
+
+.card-connector.negative {
+    background: linear-gradient(90deg, #FF3B30 0%, #FF453A 100%);
+    box-shadow: 0 2px 6px rgba(255, 59, 48, 0.4);
+}
+
+/* 警告标识 - 故事不连贯 */
+.card-connector-warning {
+    font-size: 16px;
+    line-height: 1;
+    animation: warningPulse 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(255, 150, 0, 0.5));
+}
+
+@keyframes warningPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
 }
 
 /* Polarity Symbols - iOS 18 Pill Style */
@@ -397,17 +488,16 @@ body {
 
 .card-polarity.top {
     position: absolute;
-    top: -14px;
+    top: -18px;
     left: 50%;
     transform: translateX(-50%);
 }
 
+/* 基础极性符号样式 */
 .polarity-symbol {
     cursor: pointer;
     padding: 4px 6px;
     border-radius: var(--ios-radius-full);
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(88, 86, 214, 0.15) 100%);
-    border: 1px solid rgba(0, 122, 255, 0.2);
     transition: all var(--transition-fast);
     font-size: 11px;
     width: 22px;
@@ -415,15 +505,52 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ios-blue);
     font-weight: 700;
-    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.polarity-symbol:hover {
-    background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
+/* 加号 - 绿色（积极情绪） */
+.polarity-symbol.positive {
+    background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
     color: white;
+    border: none;
+}
+
+.polarity-symbol.positive:hover {
+    background: linear-gradient(135deg, #2DB94E 0%, #28B84D 100%);
     transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+}
+
+/* 减号 - 红色（消极情绪） */
+.polarity-symbol.negative {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF453A 100%);
+    color: white;
+    border: none;
+}
+
+.polarity-symbol.negative:hover {
+    background: linear-gradient(135deg, #E5352B 0%, #E53935 100%);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+}
+
+/* 中间(顶部)极性符号 - 特别大 */
+.card-polarity.top .polarity-symbol {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    font-weight: 800;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-polarity.top .polarity-symbol.positive {
+    box-shadow: 0 4px 20px rgba(52, 199, 89, 0.5);
+}
+
+.card-polarity.top .polarity-symbol.negative {
+    box-shadow: 0 4px 20px rgba(255, 59, 48, 0.5);
 }
 
 .polarity-symbol:active {
@@ -545,22 +672,32 @@ body {
 /* Polarity Group in Modal */
 .polarity-group {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    position: relative;
+    gap: 40px;
     padding: 16px;
     background: rgba(0, 0, 0, 0.03);
     border-radius: var(--ios-radius-lg);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+.polarity-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.polarity-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.5);
+}
+
 .pol-btn {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, rgba(0, 122, 255, 0.12) 0%, rgba(88, 86, 214, 0.12) 100%);
-    border: 1px solid rgba(0, 122, 255, 0.25);
-    color: var(--ios-blue);
-    font-size: 20px;
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -569,13 +706,30 @@ body {
     border-radius: 50%;
     transition: all var(--transition-fast);
     font-family: inherit;
+    border: none;
+    color: white;
 }
 
-.pol-btn:hover {
-    background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
-    color: white;
+/* 加号 - 绿色 */
+.pol-btn.positive {
+    background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+    box-shadow: 0 4px 14px rgba(52, 199, 89, 0.35);
+}
+
+.pol-btn.positive:hover {
     transform: scale(1.08);
-    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.35);
+    box-shadow: 0 6px 20px rgba(52, 199, 89, 0.45);
+}
+
+/* 减号 - 红色 */
+.pol-btn.negative {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF453A 100%);
+    box-shadow: 0 4px 14px rgba(255, 59, 48, 0.35);
+}
+
+.pol-btn.negative:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(255, 59, 48, 0.45);
 }
 
 .pol-btn:active {

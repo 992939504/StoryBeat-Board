@@ -1,0 +1,10 @@
+# Screenshots
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
+# OS files
+.DS_Store
+Thumbs.db

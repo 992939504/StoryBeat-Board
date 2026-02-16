@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#F2F2F7">
-    <title>StoryBeat Board - iOS 18</title>
+    <title>StoryBeat Board</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
@@ -17,15 +17,18 @@
     <!-- Dynamic Island Style Toolbar -->
     <div class="toolbar">
         <div class="dynamic-island">
-            <button id="themeBtn" class="nav-btn">
-                <span>外观</span>
-            </button>
-            <button id="exportBtn" class="nav-btn">
-                <span>导出</span>
-            </button>
-            <button id="importBtn" class="nav-btn">
-                <span>导入</span>
-            </button>
+            <h1 id="pageTitle" class="page-title" contenteditable="true" title="点击编辑标题">我的故事</h1>
+            <div class="nav-buttons">
+                <button id="themeBtn" class="nav-btn">
+                    <span>外观</span>
+                </button>
+                <button id="exportBtn" class="nav-btn">
+                    <span>导出</span>
+                </button>
+                <button id="importBtn" class="nav-btn">
+                    <span>导入</span>
+                </button>
+            </div>
         </div>
     </div>
     <input type="file" id="importFile" accept=".json" style="display: none;">
@@ -39,9 +42,14 @@
             <div class="modal-header">
                 <h2 id="editModalTitle" style="font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.4px;">编辑卡片</h2>
                 <div class="polarity-group">
-                    <button class="pol-btn" data-position="left" aria-label="左侧极性">+</button>
-                    <button class="pol-btn" data-position="top" aria-label="顶部极性">+</button>
-                    <button class="pol-btn" data-position="right" aria-label="右侧极性">+</button>
+                    <div class="polarity-item">
+                        <span class="polarity-label">开头</span>
+                        <button class="pol-btn" data-position="left" aria-label="左侧极性">+</button>
+                    </div>
+                    <div class="polarity-item">
+                        <span class="polarity-label">结尾</span>
+                        <button class="pol-btn" data-position="right" aria-label="右侧极性">+</button>
+                    </div>
                 </div>
             </div>
             <div class="input-stack">
