@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事演示板</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+    <div class="toolbar">
+        <button id="exportBtn" class="toolbar-btn">导出JSON</button>
+        <button id="importBtn" class="toolbar-btn">导入JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+    </div>
+    <div id="board"></div>
+    
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="polarity-group">
+                <button class="polarity-btn left-polarity" data-position="left">+</button>
+                <div class="top-polarity-wrapper">
+                    <button class="polarity-btn top-polarity" data-position="top">+</button>
+                </div>
+                <button class="polarity-btn right-polarity" data-position="right">+</button>
+            </div>
+            <div class="form-group">
+                <label>大标题（5字以内）</label>
+                <input type="text" id="bigTitleInput" maxlength="5" placeholder="输入大标题">
+            </div>
+            <div class="form-group">
+                <label>小标题</label>
+                <input type="text" id="smallTitleInput" placeholder="输入小标题">
+            </div>
+            <div class="form-group">
+                <label>详细内容</label>
+                <textarea id="contentInput" rows="5" placeholder="输入详细内容"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="saveBtn" class="action-btn save-btn">保存</button>
+                <button id="cancelBtn" class="action-btn cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="confirm-content">
+            <p id="confirmMessage">确定要删除吗？</p>
+            <div class="confirm-actions">
+                <button id="confirmYes" class="action-btn save-btn">确定</button>
+                <button id="confirmNo" class="action-btn cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0000FF;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.toolbar {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.toolbar-btn {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#board {
+    margin-top: 50px;
+}
+
+.row {
+    border: 1px solid white;
+    margin-bottom: 15px;
+    padding: 10px;
+    position: relative;
+    min-height: 80px;
+}
+
+.row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.row-title {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+}
+
+.row-title:hover {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.row-title:focus {
+    outline: none;
+    border: 1px solid white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.delete-row-btn {
+    background: transparent;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+.delete-row-btn:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+    min-height: 60px;
+}
+
+.add-card-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.add-card-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.card {
+    border: 1px solid white;
+    padding: 10px;
+    min-width: 120px;
+    max-width: 150px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.card-polarity {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.card-polarity.left {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.card-polarity.right {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.card-polarity.top {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.polarity-symbol {
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.polarity-symbol:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.card-small-title {
+    font-size: 14px;
+    text-align: center;
+    word-break: break-word;
+}
+
+.delete-card-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background: #ff6b6b;
+    border: none;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.card:hover .delete-card-btn {
+    display: flex;
+}
+
+.add-row-container {
+    margin: 20px 0;
+}
+
+.add-row-btn {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 10px 30px;
+    cursor: pointer;
+    font-size: 14px;
+    display: block;
+    margin: 0 auto;
+}
+
+.add-row-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    color: #0000FF;
+    padding: 30px;
+    min-width: 400px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid white;
+}
+
+.polarity-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+    min-height: 40px;
+}
+
+.top-polarity-wrapper {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.polarity-btn {
+    width: 35px;
+    height: 35px;
+    background: transparent;
+    border: 1px solid #0000FF;
+    color: #0000FF;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.polarity-btn:hover {
+    background: rgba(0, 0, 255, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #0000FF;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-width: 2px;
+}
+
+#bigTitleInput {
+    font-weight: bold;
+}
+
+.modal-actions,
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.action-btn {
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid #0000FF;
+    background: transparent;
+    color: #0000FF;
+}
+
+.action-btn:hover {
+    background: #0000FF;
+    color: white;
+}
+
+.save-btn {
+    background: #0000FF;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #0000CC;
+}
+
+.cancel-btn {
+    background: transparent;
+    color: #0000FF;
+}
+
+.cancel-btn:hover {
+    background: rgba(0, 0, 255, 0.1);
+}
+
+/* Confirm Modal */
+.confirm-content {
+    background: white;
+    color: #0000FF;
+    padding: 30px;
+    border: 2px solid white;
+    text-align: center;
+}
+
+.confirm-content p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+/* Sortable Styles */
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+.sortable-drag {
+    opacity: 0.8;
+}
+
+.card.sortable-ghost {
+    background: rgba(255, 255, 255, 0.2);
+}
