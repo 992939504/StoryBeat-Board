@@ -64,58 +64,53 @@ function renderBoard() {
     const board = document.getElementById('board');
     board.innerHTML = '';
     
+    // 如果没有数据，使用默认数据
+    if (data.length === 0) {
+        data = getDefaultData();
+    }
+    
     data.forEach((row, rowIndex) => {
-        const rowElement = createRowElement(row, rowIndex);
-        board.appendChild(rowElement);
+        // 创建行的包装器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'row-wrapper';
         
-        // 添加行按钮（下一行左边）
-        if (rowIndex < data.length - 1 || data.length === 1) {
-            // 在最后一行后添加添加行按钮
-            if (rowIndex === data.length - 1) {
-                const addRowContainer = document.createElement('div');
-                addRowContainer.className = 'add-row-container';
-                const addRowBtn = document.createElement('button');
-                addRowBtn.className = 'add-row-btn';
-                addRowBtn.textContent = '+ 添加新行';
-                addRowBtn.onclick = addNewRow;
-                addRowContainer.appendChild(addRowBtn);
-                board.appendChild(addRowContainer);
-            }
+        // 如果不是第一行，在行之前添加添加行按钮（下一行左边）
+        if (rowIndex > 0) {
+            const addRowBefore = document.createElement('div');
+            addRowBefore.className = 'add-row-before';
+            const addRowBtn = document.createElement('button');
+            addRowBtn.className = 'add-row-btn';
+            addRowBtn.textContent = '+';
+            addRowBtn.title = '在此行上方添加新行';
+            addRowBtn.onclick = () => addNewRowAt(rowIndex);
+            addRowBefore.appendChild(addRowBtn);
+            wrapper.appendChild(addRowBefore);
         }
+        
+        // 创建行元素
+        const rowElement = createRowElement(row);
+        wrapper.appendChild(rowElement);
+        
+        board.appendChild(wrapper);
     });
     
-    // 如果只有一行，仍然显示添加行按钮
-    if (data.length === 1) {
-        // 已经在上面添加了
-    } else {
-        // 在最后一行后面也要有添加行按钮
-        const lastContainer = document.querySelector('.add-row-container');
-        if (!lastContainer || document.querySelectorAll('.row').length > 1) {
-            // 按钮已存在于每行之间
-        }
-    }
-    
-    // 确保最后有添加行按钮
-    ensureAddRowButton();
-}
-
-function ensureAddRowButton() {
-    const board = document.getElementById('board');
-    const existing = board.querySelector('.add-row-container');
-    if (!existing) {
-        const addRowContainer = document.createElement('div');
-        addRowContainer.className = 'add-row-container';
-        const addRowBtn = document.createElement('button');
-        addRowBtn.className = 'add-row-btn';
-        addRowBtn.textContent = '+ 添加新行';
-        addRowBtn.onclick = addNewRow;
-        addRowContainer.appendChild(addRowBtn);
-        board.appendChild(addRowContainer);
-    }
+    // 最后添加一个添加行按钮
+    const lastWrapper = document.createElement('div');
+    lastWrapper.className = 'row-wrapper';
+    const addRowContainer = document.createElement('div');
+    addRowContainer.className = 'add-row-before';
+    const addRowBtn = document.createElement('button');
+    addRowBtn.className = 'add-row-btn';
+    addRowBtn.textContent = '+';
+    addRowBtn.title = '添加新行';
+    addRowBtn.onclick = addNewRow;
+    addRowContainer.appendChild(addRowBtn);
+    lastWrapper.appendChild(addRowContainer);
+    board.appendChild(lastWrapper);
 }
 
 // 创建行元素
-function createRowElement(row, rowIndex) {
+function createRowElement(row) {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'row';
     rowDiv.dataset.rowId = row.id;
@@ -144,7 +139,7 @@ function createRowElement(row, rowIndex) {
     // 删除行按钮
     const deleteRowBtn = document.createElement('button');
     deleteRowBtn.className = 'delete-row-btn';
-    deleteRowBtn.textContent = '删除行';
+    deleteRowBtn.textContent = '删除';
     deleteRowBtn.onclick = (e) => {
         e.stopPropagation();
         showConfirm('确定要删除这一行吗？', () => {
@@ -164,11 +159,12 @@ function createRowElement(row, rowIndex) {
     const addCardBtn = document.createElement('button');
     addCardBtn.className = 'add-card-btn';
     addCardBtn.textContent = '+';
+    addCardBtn.title = '添加卡片';
     addCardBtn.onclick = () => addNewCard(row.id);
     cardsContainer.appendChild(addCardBtn);
     
     // 渲染卡片
-    row.cards.forEach((card, cardIndex) => {
+    row.cards.forEach((card) => {
         const cardElement = createCardElement(card, row.id);
         cardsContainer.appendChild(cardElement);
     });
@@ -258,7 +254,7 @@ function togglePolarity(card, position) {
     initDragAndDrop();
 }
 
-// 添加新行
+// 添加新行（在末尾）
 function addNewRow() {
     const newRow = {
         id: generateId(),
@@ -266,6 +262,19 @@ function addNewRow() {
         cards: []
     };
     data.push(newRow);
+    saveData();
+    renderBoard();
+    initDragAndDrop();
+}
+
+// 在指定位置添加新行
+function addNewRowAt(index) {
+    const newRow = {
+        id: generateId(),
+        title: '新行',
+        cards: []
+    };
+    data.splice(index, 0, newRow);
     saveData();
     renderBoard();
     initDragAndDrop();
@@ -515,10 +524,6 @@ function handleCardDragEnd(evt) {
     
     if (!fromRow || !toRow) return;
     
-    // 获取卡片元素（排除添加按钮）
-    const cardElements = Array.from(from.querySelectorAll('.card'));
-    const toCardElements = Array.from(to.querySelectorAll('.card'));
-    
     // 找到移动的卡片的ID
     const movedCardId = item.dataset.cardId;
     
@@ -540,10 +545,9 @@ function handleCardDragEnd(evt) {
         if (cardIndex > -1) {
             const [movedCard] = fromRow.cards.splice(cardIndex, 1);
             let insertIndex = newIndex;
-            if (toCardElements.length > 0 && newIndex > 0) {
+            // 调整索引（排除添加按钮）
+            if (newIndex > 0) {
                 insertIndex = newIndex - 1;
-            } else if (newIndex === 0) {
-                insertIndex = 0;
             }
             toRow.cards.splice(insertIndex, 0, movedCard);
         }
